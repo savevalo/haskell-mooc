@@ -72,7 +72,7 @@ eeny x = if even x then "eeny" else "meeny"
 -- "mellon".
 
 checkPassword :: String -> String
-checkPassword password = if password == "swordfish"
+checkPassword password = if password == "swordfish" || password == "mellon"
                          then "You're in."
                          else "ACCESS DENIED!"
 
@@ -86,7 +86,12 @@ checkPassword password = if password == "swordfish"
 -- in grams, and returns the cost in credits.
 
 postagePrice :: Int -> Int
-postagePrice = todo
+postagePrice x = do
+    if x <= 500
+        then 250
+    else if x <= 5000
+        then x + 300
+    else 6000
 
 ------------------------------------------------------------------------------
 -- Ex 8: define a function isZero that returns True if it is given an
@@ -96,7 +101,9 @@ postagePrice = todo
 --
 -- Ps. remember, the type of booleans in haskell is Bool
 
-isZero = todo
+isZero :: Integer -> Bool
+isZero x = if x == 0 then True
+   else False
 
 ------------------------------------------------------------------------------
 -- Ex 9: implement using recursion a function sumTo such that
