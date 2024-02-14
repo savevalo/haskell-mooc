@@ -123,7 +123,7 @@ capitalizeFirst (x:xs) = toUpper x : xs
 --   * the function takeWhile
 
 powers :: Int -> Int -> [Int]
-powers k max = todo
+powers k max = takeWhile (<= max) $ iterate (* k) 1
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement a functional while loop. While should be a function
