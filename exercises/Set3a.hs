@@ -106,7 +106,7 @@ capitalize x = unwords (map capitalizeFirst (words x))
 
 capitalizeFirst :: String -> String
 capitalizeFirst [] = []
-capitalizeFirst (x:xs) = toUpper x : xs
+capitalizeFirst x = toUpper (head x) : tail x
 
 ------------------------------------------------------------------------------
 -- Ex 6: powers k max should return all the powers of k that are less
@@ -146,7 +146,9 @@ powers k max = takeWhile (<= max) $ iterate (* k) 1
 --     ==> Avvt
 
 while :: (a->Bool) -> (a->a) -> a -> a
-while check update value = todo
+while check update value
+   | check value = while check update (update value)
+   | otherwise   = value
 
 ------------------------------------------------------------------------------
 -- Ex 8: another version of a while loop. This time, the check
@@ -166,7 +168,9 @@ while check update value = todo
 -- Hint! Remember the case-of expression from lecture 2.
 
 whileRight :: (a -> Either b a) -> a -> b
-whileRight check x = todo
+whileRight check x = case check x of
+    Left a -> a
+    Right b -> whileRight check b
 
 -- for the whileRight examples:
 -- step k x doubles x if it's less than k
@@ -190,7 +194,7 @@ bomb x = Right (x-1)
 -- Hint! This is a great use for list comprehensions
 
 joinToLength :: Int -> [String] -> [String]
-joinToLength = todo
+joinToLength x t = [ i++j | i <- t, j <- t, length (i++j) == x]
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the operator +|+ that returns a list with the first
@@ -203,7 +207,11 @@ joinToLength = todo
 --   [1,2,3] +|+ [4,5,6]  ==> [1,4]
 --   [] +|+ [True]        ==> [True]
 --   [] +|+ []            ==> []
-
+(+|+) :: [a] -> [a] -> [a]
+(+|+) [] [] = []
+(+|+) [] (y:b) = [y]
+(+|+) (x:a) [] = [x]
+(+|+) (x:a) (y:b) = [x,y]
 
 ------------------------------------------------------------------------------
 -- Ex 11: remember the lectureParticipants example from Lecture 2? We
@@ -220,7 +228,7 @@ joinToLength = todo
 --   sumRights [Left "bad!", Left "missing"]         ==>  0
 
 sumRights :: [Either a Int] -> Int
-sumRights = todo
+sumRights xs = sum (rights xs)
 
 ------------------------------------------------------------------------------
 -- Ex 12: recall the binary function composition operation
@@ -236,7 +244,9 @@ sumRights = todo
 --   multiCompose [(3*), (2^), (+1)] 0 ==> 6
 --   multiCompose [(+1), (2^), (3*)] 0 ==> 2
 
-multiCompose fs = todo
+multiCompose :: [a -> a] -> a -> a 
+multiCompose [] x = x
+multiCompose (f:xs) x = f (multiCompose xs x)
 
 ------------------------------------------------------------------------------
 -- Ex 13: let's consider another way to compose multiple functions. Given
@@ -257,6 +267,7 @@ multiCompose fs = todo
 --   multiApp id [head, (!!2), last] "axbxc" ==> ['a','b','c'] i.e. "abc"
 --   multiApp sum [head, (!!2), last] [1,9,2,9,3] ==> 6
 
+multiApp :: (a -> b) -> [a -> b] -> a -> [b]
 multiApp = todo
 
 ------------------------------------------------------------------------------
