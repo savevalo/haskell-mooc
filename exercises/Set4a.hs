@@ -125,8 +125,8 @@ longest = minimumBy compareLengthAndFirst
 --   incrementKey True [(True,1),(False,3),(True,4)] ==> [(True,2),(False,3),(True,5)]
 --   incrementKey 'a' [('a',3.4)] ==> [('a',4.4)]
 
-incrementKey :: (Ord k,Num v) => k -> [(k,v)] -> [(k,v)]
-incrementKey = 
+incrementKey :: (Ord k, Num v) => k -> [(k,v)] -> [(k,v)]
+incrementKey f xs = [(k, if f == k then v+1 else v) | (k, v) <- xs]
 
 ------------------------------------------------------------------------------
 -- Ex 7: compute the average of a list of values of the Fractional
@@ -141,7 +141,7 @@ incrementKey =
 -- length to a Fractional
 
 average :: Fractional a => [a] -> a
-average xs = todo
+average xs = sum xs / fromIntegral (length xs)
 
 ------------------------------------------------------------------------------
 -- Ex 8: given a map from player name to score and two players, return
@@ -160,7 +160,10 @@ average xs = todo
 --     ==> "Lisa"
 
 winner :: Map.Map String Int -> String -> String -> String
-winner scores player1 player2 = todo
+winner scores player1 player2 =
+    let score1 = Map.findWithDefault 0 player1 scores
+        score2 = Map.findWithDefault 0 player2 scores
+    in if score1 >= score2 then player1 else player2
 
 ------------------------------------------------------------------------------
 -- Ex 9: compute how many times each value in the list occurs. Return
@@ -175,7 +178,7 @@ winner scores player1 player2 = todo
 --     ==> Map.fromList [(False,3),(True,1)]
 
 freqs :: (Eq a, Ord a) => [a] -> Map.Map a Int
-freqs xs = todo
+freqs xs = Map.fromListWith (+) [(x, 1) | x <- xs]
 
 ------------------------------------------------------------------------------
 -- Ex 10: recall the withdraw example from the course material. Write a
