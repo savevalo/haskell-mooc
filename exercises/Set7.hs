@@ -92,10 +92,19 @@ add a (Set xs) = if (a `elem` xs) then Set xs else Set (sort (a:xs))
 data Event = AddEggs | AddFlour | AddSugar | Mix | Bake
   deriving (Eq,Show)
 
-data State = Start | Error | Finished
+data State = Start | AddingEggs | AddingFlour | StillAdding | AddingSugar | AddingFlourSugar | Mixing | Error | Finished
   deriving (Eq,Show)
 
-step = todo
+step :: State -> Event -> State
+step Start AddEggs = AddingEggs
+step AddingEggs AddFlour = AddingFlour
+step AddingEggs AddSugar = AddingSugar
+step AddingFlour AddSugar = AddingFlourSugar
+step AddingSugar AddFlour = AddingFlourSugar
+step AddingFlourSugar Mix = Mixing
+step Mixing Bake = Finished
+step Finished _ = Finished
+step _ _ = Error
 
 -- do not edit this
 bake :: [Event] -> State
@@ -115,7 +124,8 @@ bake events = go Start events
 --   average (1.0 :| [2.0,3.0])  ==>  2.0
 
 average :: Fractional a => NonEmpty a -> a
-average = todo
+average (x :| [] ) = x
+average (x :| xs ) = (sum xs + x) / fromIntegral (length xs + 1)
 
 ------------------------------------------------------------------------------
 -- Ex 5: reverse a NonEmpty list.
@@ -123,7 +133,9 @@ average = todo
 -- PS. The Data.List.NonEmpty type has been imported for you
 
 reverseNonEmpty :: NonEmpty a -> NonEmpty a
-reverseNonEmpty = todo
+reverseNonEmpty (x :| xs) = case Prelude.reverse xs of
+                            []     -> x :| []
+                            (y:ys) -> y :| (ys ++ [x])
 
 ------------------------------------------------------------------------------
 -- Ex 6: implement Semigroup instances for the Distance, Time and
@@ -135,6 +147,14 @@ reverseNonEmpty = todo
 -- velocity (Distance 50 <> Distance 10) (Time 1 <> Time 2)
 --    ==> Velocity 20
 
+instance Semigroup Distance where
+  (Distance a) <> (Distance b) = Distance(a+b)
+
+instance Semigroup Time where
+  (Time a) <> (Time b) = Time(a+b)
+
+instance Semigroup Velocity where
+  (Velocity a) <> (Velocity b) = Velocity(a+b)
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement a Monoid instance for the Set type from exercise 2.
@@ -144,6 +164,11 @@ reverseNonEmpty = todo
 --
 -- What are the class constraints for the instances?
 
+instance Ord a => Monoid (Set a) where
+  mempty = emptySet
+
+instance Ord a => Semigroup (Set a) where
+    (Set xs) <> (Set ys) = Set (nub (sort (xs ++ ys)))
 
 ------------------------------------------------------------------------------
 -- Ex 8: below you'll find two different ways of representing
@@ -166,29 +191,42 @@ reverseNonEmpty = todo
 
 data Operation1 = Add1 Int Int
                 | Subtract1 Int Int
+                | Multiply1 Int Int
   deriving Show
 
 compute1 :: Operation1 -> Int
 compute1 (Add1 i j) = i+j
 compute1 (Subtract1 i j) = i-j
+compute1 (Multiply1 i j) = i*j
 
 show1 :: Operation1 -> String
-show1 = todo
+show1 operation = case operation of
+  (Add1 i j) -> show i ++ "+" ++ show j
+  (Subtract1 i j) -> show i ++ "-" ++ show j
+  (Multiply1 i j) -> show i ++ "*" ++ show j
 
 data Add2 = Add2 Int Int
   deriving Show
 data Subtract2 = Subtract2 Int Int
   deriving Show
+data Multiply2 = Multiply2 Int Int
+  deriving Show
 
 class Operation2 op where
   compute2 :: op -> Int
+  show2 :: op -> String
 
 instance Operation2 Add2 where
   compute2 (Add2 i j) = i+j
+  show2 (Add2 i j) = show i ++ "+" ++ show j
 
 instance Operation2 Subtract2 where
   compute2 (Subtract2 i j) = i-j
+  show2 (Subtract2 i j) = show i ++ "-" ++ show j
 
+instance Operation2 Multiply2 where
+  compute2 (Multiply2 i j) = i*j
+  show2 (Multiply2 i j) = show i ++ "*" ++ show j
 
 ------------------------------------------------------------------------------
 -- Ex 9: validating passwords. Below you'll find a type
