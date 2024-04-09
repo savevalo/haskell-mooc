@@ -133,7 +133,10 @@ renderListExample = renderList justADot (9,11) (9,11)
 --      ["000000","000000","000000"]]
 
 dotAndLine :: Picture
-dotAndLine = todo
+dotAndLine = Picture f
+  where f (Coord x y) | x == 3 && y == 4 = white
+                      | y == 8 = pink
+                      | otherwise = black 
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -166,10 +169,13 @@ dotAndLine = todo
 --          ["7f0000","7f0000","7f0000"]]
 
 blendColor :: Color -> Color -> Color
-blendColor = todo
+blendColor (Color r g b) (Color r2 g2 b2) = Color ((r+r2)`div`2) ((g+g2)`div`2) ((b+b2)`div`2)
 
 combine :: (Color -> Color -> Color) -> Picture -> Picture -> Picture
-combine = todo
+combine f p1 p2 = Picture g
+  where g coord = f (f1 coord) (f2 coord)
+        f1 = \(Coord x y) -> let (Picture f) = p1 in f (Coord x y)
+        f2 = \(Coord x y) -> let (Picture f) = p2 in f (Coord x y)
 
 ------------------------------------------------------------------------------
 
@@ -240,7 +246,11 @@ exampleCircle = fill red (circle 80 100 200)
 --        ["000000","000000","000000","000000","000000","000000"]]
 
 rectangle :: Int -> Int -> Int -> Int -> Shape
-rectangle x0 y0 w h = todo
+rectangle x0 y0 w h = Shape f
+  where f (Coord x y) = x >= x0 && x < x0+w && y >= y0 && y < y0+h
+
+exampleRectangle :: Picture
+exampleRectangle = fill red (rectangle 100 100 100 100)
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -256,10 +266,19 @@ rectangle x0 y0 w h = todo
 -- shape.
 
 union :: Shape -> Shape -> Shape
-union = todo
+union s1 s2 = Shape f
+  where f coord = 
+            let (Shape f1) = s1
+                (Shape f2) = s2           
+            in f1 coord || (f2 coord)
 
 cut :: Shape -> Shape -> Shape
-cut = todo
+cut s1 s2 = Shape f
+  where f coord = 
+            let (Shape f1) = s1
+                (Shape f2) = s2           
+            in f1 coord && not(f2 coord)
+
 ------------------------------------------------------------------------------
 
 -- Here's a snowman, built using union from circles and rectangles.
