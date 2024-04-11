@@ -306,7 +306,10 @@ exampleSnowman = fill white snowman
 --        ["000000","000000","000000"]]
 
 paintSolid :: Color -> Shape -> Picture -> Picture
-paintSolid color shape base = todo
+paintSolid color shape base = Picture f
+  where f coord = case shape of
+                  (Shape s) -> if s coord then color else g coord
+        (Picture g) = base
 ------------------------------------------------------------------------------
 
 allWhite :: Picture
@@ -351,7 +354,11 @@ stripes a b = Picture f
 --       ["000000","000000","000000","000000","000000"]]
 
 paint :: Picture -> Shape -> Picture -> Picture
-paint pat shape base = todo
+paint pat shape base = Picture f
+  where f coord = case shape of
+                  (Shape s) -> if s coord then h coord else g coord
+        (Picture g) = base
+        (Picture h) = pat
 ------------------------------------------------------------------------------
 
 -- Here's a patterned version of the snowman example. See it by running:
@@ -414,19 +421,21 @@ xy = Picture f
 data Fill = Fill Color
 
 instance Transform Fill where
-  apply = todo
+  apply (Fill color) _ = solid color
 
 data Zoom = Zoom Int
   deriving Show
 
 instance Transform Zoom where
-  apply = todo
+  apply (Zoom z) (Picture f) = Picture (f . zoomCoord z)
 
 data Flip = FlipX | FlipY | FlipXY
   deriving Show
 
 instance Transform Flip where
-  apply = todo
+  apply FlipX (Picture f) = Picture (\(Coord x y) -> f (Coord (-x) y))
+  apply FlipY (Picture f) = Picture (\(Coord x y) -> f (Coord x (-y)))
+  apply FlipXY (Picture f) = Picture (\(Coord x y) -> f (Coord y x))
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -441,8 +450,8 @@ instance Transform Flip where
 data Chain a b = Chain a b
   deriving Show
 
-instance Transform (Chain a b) where
-  apply = todo
+instance (Transform t1, Transform t2) => Transform (Chain t1 t2) where
+  apply (Chain t1 t2) picture = apply t1 (apply t2 picture)
 ------------------------------------------------------------------------------
 
 -- Now we can redefine largeVerticalStripes using the above Transforms.
